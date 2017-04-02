@@ -7,6 +7,7 @@
 package aco;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -37,30 +38,42 @@ public class ACO {
             ArrayList<Ant> ants = antColony.getAnts();       
             //for each ant\
             for(int i = 0; i < ants.size(); i++){
+                //all ants are initialized to a starting city 
                 int currentCity = ants.get(i).getCurrentTourPosition();
                 ants.get(i).setVisited(currentCity);
                 
                 boolean needIndexOfUnvisited = true;
                 boolean probabilityNotSatisfied = true;
                 int nextCityIndex = -1;
-                //while we havent matched the probability calculation
+                
+                ArrayList<Double> unvisitedDistances = map.getUnvisitedDistancesForAnt(ants.get(i));
+                ArrayList<Double> unvisitedPheromones = map.getUnvisitedPheromonesForAnt(ants.get(i));
+                
+                //have all unvisited distances, unvisited pheromones                                         
                 while(probabilityNotSatisfied){
                     //while we still need an unvisited city
                     while(needIndexOfUnvisited){
+                       // System.out.println("need unvisited");
                         int newCityIndex = antColony.getRandomTourPositionForAnt();
                         if(!ants.get(i).hasVisited(newCityIndex)){
                             needIndexOfUnvisited = false;
                             nextCityIndex = newCityIndex;
                         }
                     }
-                double distanceBetweenCities = map.getDistance(currentCity, nextCityIndex);
-                probabilityNotSatisfied = antColony.citiesSatisfyProbability(ants.get(i), distanceBetweenCities);  // ants.get(i).cititesSatisfyProbability(currentCity, nextCityIndex);
+                    double distanceBetweenCities = map.getDistance(currentCity, nextCityIndex);
+                    double pheromoneBetweenCities = map.getPheromone(currentCity, nextCityIndex);
+                    probabilityNotSatisfied = antColony.citiesSatisfyProbability(ants.get(i), 
+                            distanceBetweenCities, pheromoneBetweenCities, nextCityIndex, unvisitedDistances,
+                            unvisitedPheromones);  // ants.get(i).cititesSatisfyProbability(currentCity, nextCityIndex);
                 }
-                //antColony.transferControlToAntColony();
+                //update pheromone
+                
+                //probability Satisfied, so add to tour
             }           
         }
             //endfor ants
-    }        
+    }
+   
 }
     
   

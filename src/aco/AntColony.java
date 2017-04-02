@@ -27,6 +27,9 @@ public class AntColony {
     private ArrayList<Ant> ants = new ArrayList<Ant>();
     private int numberOfCities = -1;
     
+    private double bestTourLengthSoFar = Double.MAX_VALUE;
+    private ArrayList<Integer> bestTourSoFar = new ArrayList<>();    
+    
     private Random random = new Random();
     
     /*
@@ -68,29 +71,51 @@ public class AntColony {
         return this.ants;
     }
     
+
     
-    public boolean citiesSatisfyProbability(Ant ant, double distanceBetweenCurrentAndCandidateCity){
+    
+    public boolean citiesSatisfyProbability(Ant ant, double distanceBetweenCurrentAndCandidateCity, 
+            double pheromoneBetweenCurrentAndCandidateCity, int indexOfCandidateCity, ArrayList<Double> distances, ArrayList<Double> pheromones){
         //THANK GOD. WE have the ant, the current city, and the candidate city distance
         //Now we can do the probability calculations and return true or false to say if we have to keep trying more or
         //if we can transfer control back to the ant colony class.
-    
+  
+        double numerator = returnProduct(pheromoneBetweenCurrentAndCandidateCity, distanceBetweenCurrentAndCandidateCity);
         
+        double denominatorSum = 0.0;
         
-    return true;
+        assert(distances.size() == pheromones.size());
+        
+        for(int i = 0; i < distances.size(); i++){
+            denominatorSum+= returnProduct(distances.get(i), pheromones.get(i));
+        }
+        
+        double randomValue = this.random.nextDouble();
+        
+        if(randomValue <= (numerator / denominatorSum)){
+            return true;
+        }
+        
+        return false; 
     }
     
+    private double returnProduct(double distance, double pheromone){      
+        return Math.pow(pheromone,  this.pheromoneInfluence) * Math.pow( 1.00 / distance, this.heuristicInfluence);    
+    }
     
-//    private double calculatePsubIJ(){
+//    public double getDeltaTK(Ant ant, int indexOfCandidateCity){
 //        
 //    }
 //    
-//    private double calculateTsubIJ(){
-//        
+///* We are assuming Best So Far will be 0 always for the first iteration */
+///* SLOW AS FUCK and FAR FROM OPTIMIZED */
+//    public double getDeltaTBSF(Ant ant, int indexOfCandidateCity){        
+//         if(this.bestTourSoFar.indexOf(ant.getCurrentTourPosition()) == this.bestTourSoFar.indexOf(indexOfCandidateCity)-1){
+//             return 1.00 / this.bestTourLengthSoFar;
+//         }
+//         return 0.00;
 //    }
-//    
-//    private double calculateDeltaTBestSoFar(){
-//        
-//    }
+
     
     public void setNumberOfCities(int numberOfCities){
         this.numberOfCities = numberOfCities;

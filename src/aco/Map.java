@@ -48,8 +48,11 @@ public class Map {
     //to calculate distance at each point of the List of List
     public void initializeMap(){
         this.readFile();
-        this.initializeArrayList(this.pheromones);
+        //make initialize pheromones
+        
         this.calculateDistances(this.distances);
+        this.initializePheromones(this.pheromones);
+
     }
     
     public int getNumberOfCities(){
@@ -119,11 +122,39 @@ public class Map {
         }
     }
     
-    private void initializeArrayList(List<List<Double>> list){
+    private void initializePheromones(List<List<Double>> list){
+        
+        double nearestNeighborSum = 0.0;
+        
         for(int i = 0; i < this.numCities; i++){
-            List<Double> listOfDoubles = new ArrayList<Double>(numCities);
-            list.add(listOfDoubles);
+            nearestNeighborSum += getClosestDistance(i);
         }
+        
+        double initialPheromoneValue = 1.00 / (this.numCities * nearestNeighborSum);
+        //System.out.println(initialPheromoneValue);
+        for(int i = 0; i < this.numCities; i++){
+            List<Double> listOfDoubles = new ArrayList<>();
+            for(int z = 0; z < this.numCities; z++){
+                listOfDoubles.add(initialPheromoneValue);
+            }
+            
+            list.add(listOfDoubles);
+        }        
+    }
+    
+    /* This is for nearest neighbor calc for pheromone initialization */
+    private double getClosestDistance(int cityIndex){
+        int minIndex = Integer.MAX_VALUE;
+        
+        for(int i = 0; i < this.distances.size(); i++){
+            if( this.distances.get(cityIndex).get(i) < minIndex){
+                if(this.distances.get(cityIndex).get(i) != 0){
+                    minIndex = i;
+                }
+            }
+        }
+        //returns distance
+        return this.distances.get(cityIndex).get(minIndex);
     }
     
     public String getFileName(){
@@ -140,6 +171,39 @@ public class Map {
     }
     
     public double getDistance(int city1, int city2){
+        return this.distances.get(city1).get(city2);
+    }
+    
+    public ArrayList<Double> getUnvisitedDistancesForAnt(Ant ant){
+        
+        ArrayList<Double> distances = new ArrayList<>();
+        
+        for(int i = 0; i < this.numCities; i++){
+            
+            if(!ant.hasVisited(i)){
+                distances.add(this.distances.get(ant.getCurrentTourPosition()).get(i));
+            }
+            
+        }
+        
+        return distances;
+    }
+    
+    public ArrayList<Double> getUnvisitedPheromonesForAnt(Ant ant){
+        
+        ArrayList<Double> pheromones = new ArrayList<>();
+        
+        for(int i = 0; i < this.numCities; i++){
+            
+            if(!ant.hasVisited(i)){
+                pheromones.add(this.distances.get(ant.getCurrentTourPosition()).get(i));         
+            }
+        }
+        
+        return pheromones;
+    }
+    
+    public double getPheromone(int city1, int city2){
         return this.distances.get(city1).get(city2);
     }
 }
