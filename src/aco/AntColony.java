@@ -70,11 +70,7 @@ public class AntColony {
     public ArrayList<Ant> getAnts(){
         return this.ants;
     }
-    
-
-    
-    
-    public boolean citiesSatisfyProbability(Ant ant, double distanceBetweenCurrentAndCandidateCity, 
+    public boolean citiesDontSatisfyProbability(Ant ant, double distanceBetweenCurrentAndCandidateCity, 
             double pheromoneBetweenCurrentAndCandidateCity, int indexOfCandidateCity, ArrayList<Double> distances, ArrayList<Double> pheromones){
         //THANK GOD. WE have the ant, the current city, and the candidate city distance
         //Now we can do the probability calculations and return true or false to say if we have to keep trying more or
@@ -93,43 +89,66 @@ public class AntColony {
         double randomValue = this.random.nextDouble();
         
         if(randomValue <= (numerator / denominatorSum)){
-            return true;
+            return false;
         }
         
-        return false; 
+        return true; 
     }
-    
     private double returnProduct(double distance, double pheromone){      
         return Math.pow(pheromone,  this.pheromoneInfluence) * Math.pow( 1.00 / distance, this.heuristicInfluence);    
     }
+    
+//    public void layPheromoneForAnt(Ant ant, double pheromoneBetweenCities){
+//        
+//    }
     
 //    public double getDeltaTK(Ant ant, int indexOfCandidateCity){
 //        
 //    }
 //    
-///* We are assuming Best So Far will be 0 always for the first iteration */
-///* SLOW AS FUCK and FAR FROM OPTIMIZED */
-//    public double getDeltaTBSF(Ant ant, int indexOfCandidateCity){        
-//         if(this.bestTourSoFar.indexOf(ant.getCurrentTourPosition()) == this.bestTourSoFar.indexOf(indexOfCandidateCity)-1){
-//             return 1.00 / this.bestTourLengthSoFar;
-//         }
-//         return 0.00;
-//    }
+/* We are assuming Best So Far will be 0 always for the first iteration */
+/* SLOW AS FUCK and FAR FROM OPTIMIZED */
+    public double getDeltaTBSF(int firstCity, int secondCity){    
+        
+        for(int x = 0; x < this.bestTourSoFar.size()-1; x++){
+            if(this.bestTourSoFar.get(x) == firstCity ){
+                if(this.bestTourSoFar.get(x+1) == secondCity){
+                    return 1.0 / this.bestTourLengthSoFar; 
+                }
+            }
+        }
+         return 0.00;
+    }
+    
+    public double getBestTourLengthSoFar(){
+        return this.bestTourLengthSoFar;
+    }
+    
+    public ArrayList<Integer> getBestTourSoFar(){
+        return this.bestTourSoFar;
+    }
+    
+    public double getEvaporationFactor(){
+        return this.evaporationFactor;
+    }
+    
+    public double getElitismFactor(){
+        return this.elitismFactor;
+    }
+    
+    public int getNumberOfIterations(){
+        return this.numberOfIterations;
+    }
 
     
     public void setNumberOfCities(int numberOfCities){
         this.numberOfCities = numberOfCities;
     }
-    
     public int getRandomTourPositionForAnt(){
         //off by one? dont think so
         return random.nextInt(this.numberOfCities);    
     }
-    
-        
-    private void runTours(ArrayList<Ant> ants){
-        
+     
 
-    }
     
 }

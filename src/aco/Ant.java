@@ -19,6 +19,8 @@ public class Ant {
     private ArrayList<Integer> tourHistory;
     private int currentTourPosition;
     
+    private double pheromone;
+    
     private HashMap<Integer,Integer> mapOfIndexToVisitedBoolean = new HashMap<Integer,Integer>();
 
     /* Initialize Ant with randomTourPosition between 0 inclusive and number of cities exclusive */
@@ -27,10 +29,23 @@ public class Ant {
         this.tourHistory = new ArrayList<Integer>();
         this.currentTourLength = 0;
         this.currentTourPosition = randomTourPosition;
+        this.pheromone = 0;
     }
     
     public int getCurrentTourPosition(){
         return this.currentTourPosition;
+    }
+    
+    public void setCurrentTourPosition(int newPosition){
+        this.currentTourPosition = newPosition;
+    }
+    
+    public void updateCurrentTourHistory(int newPosition){
+        this.tourHistory.add(newPosition);
+    }
+    
+    public void updateCurrentTourLength(double distance){
+        this.currentTourLength += distance;
     }
     
     public void setVisited(int index){
@@ -43,7 +58,22 @@ public class Ant {
         return false;
     }
     
-
-            
+    //should be fine . No wrap around in tour? Also, check last index maybe/
+    public boolean checkIJInTourHistory(int i, int j){
+        
+        for(int x = 0; x < this.tourHistory.size()-1; x++){
+            if(this.tourHistory.get(x) == i ){
+                if(this.tourHistory.get(x+1) == j){
+                    return true;   
+                }
+            }
+        }
+       return false;
+    }
+    
+    public double getCurrentTourLength(){
+        return this.currentTourLength;
+    }
+           
             
 }

@@ -23,6 +23,8 @@ import java.util.logging.*;
  */
 public class Map {
     
+    
+    
     private String filename = null;  
     
     //coordinates read from file
@@ -33,7 +35,7 @@ public class Map {
     private List<List<Double>> distances;
  
     private int numCities;
-    
+        
     public Map(String filename){
         this.filename = filename;
         this.coordinates = new ArrayList<List<Double>>();
@@ -57,6 +59,14 @@ public class Map {
     
     public int getNumberOfCities(){
         return this.numCities;
+    }
+    
+    
+    public List<List<Double>> getDistances(){
+        return this.distances;
+    }
+    public List<List<Double>> getPheromones(){
+        return this.pheromones;
     }
     
     private void calculateDistances(List<List<Double>> list){
@@ -153,7 +163,7 @@ public class Map {
                 }
             }
         }
-        //returns distance
+        //returns  distance
         return this.distances.get(cityIndex).get(minIndex);
     }
     
@@ -168,42 +178,5 @@ public class Map {
             }
             System.out.println("\n");
         }
-    }
-    
-    public double getDistance(int city1, int city2){
-        return this.distances.get(city1).get(city2);
-    }
-    
-    public ArrayList<Double> getUnvisitedDistancesForAnt(Ant ant){
-        
-        ArrayList<Double> distances = new ArrayList<>();
-        
-        for(int i = 0; i < this.numCities; i++){
-            
-            if(!ant.hasVisited(i)){
-                distances.add(this.distances.get(ant.getCurrentTourPosition()).get(i));
-            }
-            
-        }
-        
-        return distances;
-    }
-    
-    public ArrayList<Double> getUnvisitedPheromonesForAnt(Ant ant){
-        
-        ArrayList<Double> pheromones = new ArrayList<>();
-        
-        for(int i = 0; i < this.numCities; i++){
-            
-            if(!ant.hasVisited(i)){
-                pheromones.add(this.distances.get(ant.getCurrentTourPosition()).get(i));         
-            }
-        }
-        
-        return pheromones;
-    }
-    
-    public double getPheromone(int city1, int city2){
-        return this.distances.get(city1).get(city2);
     }
 }
