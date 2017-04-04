@@ -13,6 +13,7 @@ package aco;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  *
@@ -25,6 +26,7 @@ public class ACO {
     private static List<List<Double>> globalDistances; // = new ArrayList<List<Double>>();
     private static List<List<Double>> globalPheromones; // = new ArrayList<List<Double>>();
     private static int globalNumberOfCities;
+    private static Random rand = new Random();
 
     /**
      * @param args the command line arguments
@@ -54,6 +56,7 @@ public class ACO {
         int numberOfIterations = antColony.getNumberOfIterations();
         int counter = 0;
         
+        
         while(runTours){
             antColony.initializeAnts();
                       
@@ -63,28 +66,25 @@ public class ACO {
                     //all ants are initialized to a starting city 
                     int currentCity = ants.get(i).getCurrentTourPosition();
                     ants.get(i).setVisited(currentCity);
-                    boolean probabilityNotSatisfied = true;
-                    int nextCityIndex = -1;
+                    
+                    
+                    
 
                     ArrayList<Double> unvisitedDistances = getUnvisitedDistancesForAnt(ants.get(i));
                     ArrayList<Double> unvisitedPheromones = getUnvisitedPheromonesForAnt(ants.get(i));
                     //have all unvisited distances, unvisited pheromones 
-                    double distanceBetweenCities = 0.0;
-                    double pheromoneBetweenCities = 0.0;
-                    while(probabilityNotSatisfied){
-                        
-                        nextCityIndex = ants.get(i).getRandomCityForAnt();
-                        
-                        distanceBetweenCities = getDistance(currentCity, nextCityIndex);
-                        pheromoneBetweenCities = getPheromone(currentCity, nextCityIndex);
-                        probabilityNotSatisfied = antColony.citiesDontSatisfyProbability(ants.get(i), 
-                                distanceBetweenCities, pheromoneBetweenCities, nextCityIndex, unvisitedDistances,
-                                unvisitedPheromones); 
-                    }            
-                    ants.get(i).updateCurrentTourHistory(nextCityIndex);
-                    ants.get(i).setCurrentTourPosition(nextCityIndex);
-                    ants.get(i).updateCurrentTourLength(distanceBetweenCities);
+                    
+                    double alpha = antColony.getAlpha();
+                    double beta = antColony.getBeta();        
+                    int nextCity = getNextCity(ants.get(i), 
+                                unvisitedDistances,
+                                unvisitedPheromones, alpha, beta); 
+                    
+                    ants.get(i).updateCurrentTourHistory(nextCity);
+                    ants.get(i).setCurrentTourPosition(nextCity);
+                    ants.get(i).updateCurrentTourLength(nextCity);
                 } //END ANTS
+
             }
             System.out.println("Entering update pheromones");
             updatePheromones(antColony); 
@@ -166,7 +166,50 @@ public class ACO {
     
     private static void setPheromone(int city1, int city2, double pheromoneValue){
         globalPheromones.get(city1).set(city2, pheromoneValue);
-    }   
+    }
+    
+    private static int getNextCity(Ant ant, ArrayList<Double> unvisitedDistances, ArrayList<Double> unvisitedPheromones,
+            double alpha, double beta){
+        
+        double denominatorSum = 0.0;
+
+        ArrayList<Double> arrayOfNumerators = new ArrayList<>();
+        
+        for(int i = 0; i < ant.getUnvisitedCities().size(); i++){
+            arrayOfNumerators.add(returnProduct(unvisitedDistances.get(i), unvisitedPheromones.get(i), alpha, beta));          
+        }
+        
+        for(int i = 0; i < unvisitedDistances.size(); i++){
+            
+            double returnProductResult = returnProduct(unvisitedDistances.get(i), unvisitedPheromones.get(i), alpha, beta);
+            if(returnProductResult > 1){
+                System.exit(-1);
+            }
+            denominatorSum+= returnProductResult;
+        }
+  
+        double randomValue = rand.nextDouble() * denominatorSum;
+        
+        double runningSum = 0.0;
+        
+        int cityToGoToIndex = -1;
+        for(int i = 0; i< ant.getUnvisitedCities().size(); i++ ){
+            runningSum += arrayOfNumerators.get(i);
+            if(randomValue <= runningSum){
+                cityToGoToIndex = i;
+                break;
+            }
+        }
+        
+        return ant.getUnvisitedCities().get(cityToGoToIndex);
+    }
+    
+    private static double returnProduct(double distance, double pheromone, double alpha, double beta){  
+        
+        return Math.pow(pheromone, alpha) * Math.pow( 1.00 / distance, beta);    
+    }
+    
+
 }
     
   

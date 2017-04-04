@@ -74,35 +74,7 @@ public class AntColony {
     public ArrayList<Ant> getAnts(){
         return this.ants;
     }
-    public boolean citiesDontSatisfyProbability(Ant ant, double distanceBetweenCurrentAndCandidateCity, 
-            double pheromoneBetweenCurrentAndCandidateCity, int indexOfCandidateCity, ArrayList<Double> distances, ArrayList<Double> pheromones){
-  
-        double numerator = returnProduct(pheromoneBetweenCurrentAndCandidateCity, distanceBetweenCurrentAndCandidateCity);
-        
-        double denominatorSum = 0.0;
-        
-        assert(distances.size() == pheromones.size());
-        assert(distances != pheromones);
-        
-        //infinite
-        for(int i = 0; i < distances.size(); i++){
-            
-            double returnProductResult = returnProduct(distances.get(i), pheromones.get(i));
-            if(returnProductResult > 1){
-                System.exit(-1);
-            }
-            denominatorSum+= returnProductResult;
-        }
-  
-        double randomValue = this.random.nextDouble();
-        
-        if(randomValue <= (numerator / denominatorSum)){
-       //   System.out.println("false: " + numerator / denominatorSum);
-            return false;
-        }
-        
-        return true; 
-    }
+    
     private double returnProduct(double distance, double pheromone){  
         
         return Math.pow(pheromone,  this.alpha) * Math.pow( 1.00 / distance, this.beta);    
@@ -165,4 +137,13 @@ public class AntColony {
         //off by one? dont think so
         return random.nextInt(this.numberOfCities);    
     }
+    
+    public double getAlpha(){
+        return this.alpha;
+    }
+    
+    public double getBeta(){
+        return this.beta;
+    }
+    
 }
