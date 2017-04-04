@@ -16,8 +16,6 @@ public class AntColony {
     
     private int numberOfAnts;
     private int numberOfIterations;
-    private double pheromoneInfluence;
-    private double heuristicInfluence;
     private double evaporationFactor;
     private double elitismFactor;
     private double pheromeWearAwayEValue;
@@ -30,6 +28,8 @@ public class AntColony {
     private double bestTourLengthSoFar = Double.MAX_VALUE;
     private ArrayList<Integer> bestTourSoFar = new ArrayList<>();    
     
+    private double alpha = 0;
+    private double beta  = 0;
     private Random random = new Random();
     
     /*
@@ -40,14 +40,14 @@ public class AntColony {
     
     Also want to allow code to stop after certain amount of time has elapsed
     */
-    public AntColony(int numberOfAnts, int numberOfIterations, double pheromoneInfluence,
-            double heuristicInfluence, double evaporationFactor, double elitismFactor, 
+    public AntColony(int numberOfAnts, int numberOfIterations, double alpha,
+            double beta, double evaporationFactor, double elitismFactor, 
             double pheromoneWearAwayEValue, double pheromoneWearAwayTZero, double bestLegProbability){
         
         this.numberOfAnts = numberOfAnts;
         this.numberOfIterations = numberOfIterations;
-        this.pheromoneInfluence = pheromoneInfluence;
-        this.heuristicInfluence = heuristicInfluence;
+        this.alpha = alpha;
+        this.beta = beta;
         this.evaporationFactor = evaporationFactor;
         this.elitismFactor = elitismFactor;
         this.pheromeWearAwayEValue = pheromoneWearAwayEValue;
@@ -58,8 +58,12 @@ public class AntColony {
     /* Initializes ants ArrayList with each ant with a random tour position */
     public void initializeAnts(){
         for(int i = 0; i < this.numberOfAnts; i++){
+            if(!this.ants.isEmpty()){
+                this.ants.clear();
+            }   
             int randomTourPosition = getRandomTourPositionForAnt();
             Ant ant = new Ant(randomTourPosition, this.numberOfCities);
+            
             this.ants.add(ant);
         }
     }
@@ -72,42 +76,38 @@ public class AntColony {
     }
     public boolean citiesDontSatisfyProbability(Ant ant, double distanceBetweenCurrentAndCandidateCity, 
             double pheromoneBetweenCurrentAndCandidateCity, int indexOfCandidateCity, ArrayList<Double> distances, ArrayList<Double> pheromones){
-        //THANK GOD. WE have the ant, the current city, and the candidate city distance
-        //Now we can do the probability calculations and return true or false to say if we have to keep trying more or
-        //if we can transfer control back to the ant colony class.
   
         double numerator = returnProduct(pheromoneBetweenCurrentAndCandidateCity, distanceBetweenCurrentAndCandidateCity);
         
         double denominatorSum = 0.0;
         
         assert(distances.size() == pheromones.size());
+        assert(distances != pheromones);
         
+        //infinite
         for(int i = 0; i < distances.size(); i++){
-            denominatorSum+= returnProduct(distances.get(i), pheromones.get(i));
+            
+            double returnProductResult = returnProduct(distances.get(i), pheromones.get(i));
+            if(returnProductResult > 1){
+                System.exit(-1);
+            }
+            denominatorSum+= returnProductResult;
         }
-        
+  
         double randomValue = this.random.nextDouble();
         
         if(randomValue <= (numerator / denominatorSum)){
+       //   System.out.println("false: " + numerator / denominatorSum);
             return false;
         }
         
         return true; 
     }
-    private double returnProduct(double distance, double pheromone){      
-        return Math.pow(pheromone,  this.pheromoneInfluence) * Math.pow( 1.00 / distance, this.heuristicInfluence);    
+    private double returnProduct(double distance, double pheromone){  
+        
+        return Math.pow(pheromone,  this.alpha) * Math.pow( 1.00 / distance, this.beta);    
     }
     
-//    public void layPheromoneForAnt(Ant ant, double pheromoneBetweenCities){
-//        
-//    }
-    
-//    public double getDeltaTK(Ant ant, int indexOfCandidateCity){
-//        
-//    }
-//    
-/* We are assuming Best So Far will be 0 always for the first iteration */
-/* SLOW AS FUCK and FAR FROM OPTIMIZED */
     public double getDeltaTBSF(int firstCity, int secondCity){    
         
         for(int x = 0; x < this.bestTourSoFar.size()-1; x++){
@@ -118,6 +118,24 @@ public class AntColony {
             }
         }
          return 0.00;
+    }
+    
+    public void setBestTourLengthSoFarAndAddToTourHistory(){
+        
+        double bestTourLengthSoFar = this.bestTourLengthSoFar;
+        int bestIndex = -1;
+        for(int i = 0; i < this.ants.size(); i++){
+            if(ants.get(i).getCurrentTourLength() < bestTourLengthSoFar){
+                bestTourLengthSoFar = ants.get(i).getCurrentTourLength();
+                bestIndex = i;
+            }
+        }
+        
+        if(bestIndex != -1){
+            this.bestTourSoFar = ants.get(bestIndex).getTourHistory(); 
+            this.bestTourLengthSoFar = bestTourLengthSoFar;
+            
+        }  
     }
     
     public double getBestTourLengthSoFar(){
@@ -140,7 +158,6 @@ public class AntColony {
         return this.numberOfIterations;
     }
 
-    
     public void setNumberOfCities(int numberOfCities){
         this.numberOfCities = numberOfCities;
     }
@@ -148,7 +165,4 @@ public class AntColony {
         //off by one? dont think so
         return random.nextInt(this.numberOfCities);    
     }
-     
-
-    
 }

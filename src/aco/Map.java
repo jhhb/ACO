@@ -23,8 +23,6 @@ import java.util.logging.*;
  */
 public class Map {
     
-    
-    
     private String filename = null;  
     
     //coordinates read from file
@@ -81,7 +79,9 @@ public class Map {
             for(int z = 0; z < this.coordinates.size(); z++){
                 if(z == i){
                     //SET TO 0 IF WE ARE AT z == i
-                    distancesForGivenCity.add(0.0);
+                   //THIS FIXES EVERYTING
+                    distancesForGivenCity.add(0.01);
+                    //distancesForGivenCity.add(0.0);
                 }
                 else{
                     Double distance = calculateDistance(cityCoordinates, this.coordinates.get(z));
@@ -139,6 +139,8 @@ public class Map {
         for(int i = 0; i < this.numCities; i++){
             nearestNeighborSum += getClosestDistance(i);
         }
+        
+        //Mess with initial pheromone value
         
         double initialPheromoneValue = 1.00 / (this.numCities * nearestNeighborSum);
         //System.out.println(initialPheromoneValue);
