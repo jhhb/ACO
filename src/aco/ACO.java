@@ -44,7 +44,23 @@ public class ACO {
         /*Usage: new AntColony(ants, iterations, alpha, beta, p, elitismNumAnts, epsilon, t0, q0) */
         AntColony antColony = new AntColony(30, 50, 1, 3, 0.1, 30, 0.1, 0, 0.9);
         antColony.setNumberOfCities(numberOfCities);
-                
+        
+//        double max = 0;
+//        for(int i = 0; i < globalDistances.size(); i++){
+//            for(int z = 0; z < globalDistances.size(); z++){
+//                
+//                System.out.print(globalDistances.get(i).get(z));
+//
+//                if(globalDistances.get(i).get(z) > max){
+//                    max = globalDistances.get(i).get(z);
+//                }
+//                
+//            }
+//            System.out.println("\n");
+//
+//        }
+//        System.out.println(max);
+        
         runElitistACO(antColony);
            
     }

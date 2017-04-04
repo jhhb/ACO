@@ -69,19 +69,13 @@ public class Map {
     
     private void calculateDistances(List<List<Double>> list){
         
-        //for each city
-            //for all other cities
-                //calculate distance and cahce
         for(int i = 0; i < this.coordinates.size(); i++){
             List<Double> cityCoordinates = getCoordinates(i);
             
             List<Double> distancesForGivenCity = new ArrayList<Double>();
             for(int z = 0; z < this.coordinates.size(); z++){
                 if(z == i){
-                    //SET TO 0 IF WE ARE AT z == i
-                   //THIS FIXES EVERYTING
-                    distancesForGivenCity.add(0.01);
-                    //distancesForGivenCity.add(0.0);
+                    distancesForGivenCity.add(0.1);
                 }
                 else{
                     Double distance = calculateDistance(cityCoordinates, this.coordinates.get(z));
@@ -96,9 +90,8 @@ public class Map {
     //only two coords.
     private double calculateDistance(List<Double> givenCity, List<Double> variableCity){
         
-        return (givenCity.get(0) - variableCity.get(0)) * (givenCity.get(0) - variableCity.get(0))
-                + (givenCity.get(1) - variableCity.get(1)) * (givenCity.get(1) - variableCity.get(1));
-        //return distance;
+        return Math.sqrt((givenCity.get(0) - variableCity.get(0)) * (givenCity.get(0) - variableCity.get(0))
+                + (givenCity.get(1) - variableCity.get(1)) * (givenCity.get(1) - variableCity.get(1)));
     }
       
     private List<Double> getCoordinates(int index){
