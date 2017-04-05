@@ -72,22 +72,17 @@ public class Ant {
         //remove item at index    
         int indexToRemoveAt = -1;
         
-        System.out.println("Next city to delete: " + city);
         for(int i = 0; i < this.unvisitedCities.size(); i++){
             if(this.unvisitedCities.get(i) == city){
-                System.out.println("city: " + city + ", index: " + i);
                 indexToRemoveAt = i;
             }
         }
-        System.out.println(this.unvisitedCities);
 
-        
         if(indexToRemoveAt == -1){
             System.exit(-2);
         }
         this.unvisitedCities.remove(indexToRemoveAt);
         
-        //this.unvisitedCities.remove(city);
     }
     //should be fine . No wrap around in tour? Also, check last index maybe/
     public boolean checkIJInTourHistory(int i, int j){
@@ -106,19 +101,12 @@ public class Ant {
         return this.currentTourLength;
     }
     
+    public int getInitialCityIndex(){
+        return this.initialCityIndex;
+    }
+    
     public int getRandomCityForAnt(){
-        //off by one? dont think so
-        
-        //if we have 200 cities,
-        //this.unvisitedCities has size = 200
-
-        //THIS SHOULD NEVER OCCUR
-        
-        if(this.unvisitedCities.isEmpty()){
-            //ANT NEEDS TO RETURN TO THE 0th CITY
-            return this.initialCityIndex;
-        }
-      
+           
         int newIndex = random.nextInt(this.unvisitedCities.size());
                 
         return newIndex;

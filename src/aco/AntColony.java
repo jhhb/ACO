@@ -99,14 +99,14 @@ public class AntColony {
         for(int i = 0; i < this.ants.size(); i++){
             if(ants.get(i).getCurrentTourLength() < bestTourLengthSoFar){
                 bestTourLengthSoFar = ants.get(i).getCurrentTourLength();
+          //      System.out.println(bestTourLengthSoFar + "\n");
                 bestIndex = i;
             }
         }
         
         if(bestIndex != -1){
             this.bestTourSoFar = ants.get(bestIndex).getTourHistory(); 
-            this.bestTourLengthSoFar = bestTourLengthSoFar;
-            
+            this.bestTourLengthSoFar = bestTourLengthSoFar; 
         }  
     }
     

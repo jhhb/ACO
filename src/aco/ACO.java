@@ -42,24 +42,8 @@ public class ACO {
         
         globalNumberOfCities = numberOfCities;     
         /*Usage: new AntColony(ants, iterations, alpha, beta, p, elitismNumAnts, epsilon, t0, q0) */
-        AntColony antColony = new AntColony(30, 50, 1, 3, 0.1, 30, 0.1, 0, 0.9);
+        AntColony antColony = new AntColony(30, 150, 1, 3, 0.1, 30, 0.1, 0, 0.9);
         antColony.setNumberOfCities(numberOfCities);
-        
-//        double max = 0;
-//        for(int i = 0; i < globalDistances.size(); i++){
-//            for(int z = 0; z < globalDistances.size(); z++){
-//                
-//                System.out.print(globalDistances.get(i).get(z));
-//
-//                if(globalDistances.get(i).get(z) > max){
-//                    max = globalDistances.get(i).get(z);
-//                }
-//                
-//            }
-//            System.out.println("\n");
-//
-//        }
-//        System.out.println(max);
         
         runElitistACO(antColony);
            
@@ -72,39 +56,39 @@ public class ACO {
         int numberOfIterations = antColony.getNumberOfIterations();
         int counter = 0;
         
-        
         while(runTours){
             antColony.initializeAnts();
-                      
+            
+            //1 tour
             for(int k = 0; k < globalNumberOfCities; k++){
-                ArrayList<Ant> ants = antColony.getAnts();       
+                ArrayList<Ant> ants = antColony.getAnts(); 
+                //all ants move once
                 for(int i = 0; i < ants.size(); i++){
                     //all ants are initialized to a starting city 
                     int currentCity = ants.get(i).getCurrentTourPosition();
                     ants.get(i).setVisited(currentCity);
                     
-                    
-                    
-
                     ArrayList<Double> unvisitedDistances = getUnvisitedDistancesForAnt(ants.get(i));
                     ArrayList<Double> unvisitedPheromones = getUnvisitedPheromonesForAnt(ants.get(i));
                     //have all unvisited distances, unvisited pheromones 
-                    
                     double alpha = antColony.getAlpha();
                     double beta = antColony.getBeta();        
+                    
                     int nextCity = getNextCity(ants.get(i), 
                                 unvisitedDistances,
                                 unvisitedPheromones, alpha, beta); 
                     
+                    if(nextCity == -1) {
+                        nextCity = ants.get(i).getInitialCityIndex();
+                    }
                     ants.get(i).updateCurrentTourHistory(nextCity);
                     ants.get(i).setCurrentTourPosition(nextCity);
-                    ants.get(i).updateCurrentTourLength(nextCity);
+                    ants.get(i).updateCurrentTourLength(getDistance(currentCity, nextCity));
                 } //END ANTS
 
             }
-            System.out.println("Entering update pheromones");
-            updatePheromones(antColony); 
             antColony.setBestTourLengthSoFarAndAddToTourHistory();
+            updateGlobalPheromones(antColony);
             
             counter+=1;
             if(counter == numberOfIterations){
@@ -115,29 +99,30 @@ public class ACO {
         System.out.println(antColony.getBestTourSoFar());
     }
     
-    private static void updatePheromones(AntColony antColony){
-        for(int i = 0; i < globalPheromones.size(); i++){
-            for(int j = 0; j < globalPheromones.get(i).size(); j++){
-                
-                ArrayList<Ant> ants = antColony.getAnts();
-                
-                double sumOfAntPheromones = 0.0;
-                //this computes the sum
-                for(int z = 0; z < ants.size(); z++){
-                    if(ants.get(z).checkIJInTourHistory(i, j)){
-                        sumOfAntPheromones += (1.0 / ants.get(z).getCurrentTourLength());
-                    }    
-                }
-                
-                double eProduct = antColony.getDeltaTBSF(i, j) * antColony.getElitismFactor();
-                
-                double pheromoneIJProduct = (1.0 - antColony.getEvaporationFactor()) * globalPheromones.get(i).get(j);
-                
-                double newPheromoneValue = pheromoneIJProduct + sumOfAntPheromones + eProduct;
-                setPheromone(i, j, newPheromoneValue);
+    private static void updateGlobalPheromones(AntColony antColony){
+        
+        //(1 - p) * Tij
+        for(int i = 0; i < globalNumberOfCities; i++) {
+            for(int j = 0; j < globalNumberOfCities; j++) {
+                double pheromoneUpdate = (antColony.getEvaporationFactor() * -1) * globalPheromones.get(i).get(j);
+                updatePheromone(i, j, pheromoneUpdate);
             }
         }
-        System.out.println("Leaving update pheromones");
+        
+        //ants pheromone
+        updateAntsPheromone(antColony);
+        
+        //best so far pheromone
+        updateBSFPheromone(antColony);
+        
+        //flippyThing
+        for(int i = 0; i < globalNumberOfCities; i++) {
+            for(int j = 0; j < globalNumberOfCities; j++) {
+                if (j > i) {
+                    globalPheromones.get(j).set(i, globalPheromones.get(i).get(j));  
+                }
+            }
+        }
     }
     
     private static ArrayList<Double> getUnvisitedDistancesForAnt(Ant ant){
@@ -180,8 +165,77 @@ public class ACO {
         return globalPheromones.get(city1).get(city2);
     }
     
-    private static void setPheromone(int city1, int city2, double pheromoneValue){
-        globalPheromones.get(city1).set(city2, pheromoneValue);
+    private static void updatePheromone(int city1, int city2, double pheromoneValue){
+        double prevValue = globalPheromones.get(city1).get(city2);
+        globalPheromones.get(city1).set(city2, pheromoneValue + prevValue);
+    }
+    
+    private static void updateAntsPheromone(AntColony colony) {
+        
+        ArrayList<Ant> ants = colony.getAnts();
+        
+        for(int i = 0; i < ants.size(); i++) {
+            for(int j = 0; j < ants.get(i).getTourHistory().size() - 1; j++) {
+                
+                int city1 = ants.get(i).getTourHistory().get(j);
+                int city2 = ants.get(i).getTourHistory().get(j+1);
+                
+                if (city1 > city2) {
+                    int temp = city1;
+                    city1 = city2;
+                    city2 = temp;
+                }
+                
+                double antsPheromone = 1.00 / ants.get(i).getCurrentTourLength();
+                
+                updatePheromone(city1, city2, antsPheromone);
+            }
+            
+            int city1 = ants.get(i).getTourHistory().get(ants.get(i).getTourHistory().size() - 1);
+            int city2 = ants.get(i).getTourHistory().get(0);
+            
+            if (city1 > city2) {
+                int temp = city1;
+                city1 = city2;
+                city2 = temp;
+            }
+                
+            double antsPheromone = 1.00 / ants.get(i).getCurrentTourLength();
+                
+            updatePheromone(city1, city2, antsPheromone); 
+        }
+        
+        
+    }
+    private static void updateBSFPheromone(AntColony colony) {
+        
+        for (int i = 0; i < colony.getBestTourSoFar().size() - 1; i++) {
+            
+            int city1 = colony.getBestTourSoFar().get(i);
+            int city2 = colony.getBestTourSoFar().get(i+1);
+                
+            if (city1 > city2) {
+                int temp = city1;
+                city1 = city2;
+                city2 = temp;
+            }
+
+            double pheromone = colony.getElitismFactor() / colony.getBestTourLengthSoFar();
+
+            updatePheromone(city1, city2, pheromone);
+        }
+        int city1 = colony.getBestTourSoFar().get(0);
+        int city2 = colony.getBestTourSoFar().get(colony.getBestTourSoFar().size()-1);
+
+        if (city1 > city2) {
+            int temp = city1;
+            city1 = city2;
+            city2 = temp;
+        }
+
+        double pheromone = colony.getElitismFactor() / colony.getBestTourLengthSoFar();
+
+        updatePheromone(city1, city2, pheromone);  
     }
     
     private static int getNextCity(Ant ant, ArrayList<Double> unvisitedDistances, ArrayList<Double> unvisitedPheromones,
@@ -216,7 +270,9 @@ public class ACO {
                 break;
             }
         }
-        
+        if (cityToGoToIndex == -1) {
+            return -1;
+        }
         return ant.getUnvisitedCities().get(cityToGoToIndex);
     }
     
@@ -224,8 +280,6 @@ public class ACO {
         
         return Math.pow(pheromone, alpha) * Math.pow( 1.00 / distance, beta);    
     }
-    
-
 }
     
   

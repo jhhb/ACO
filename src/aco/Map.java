@@ -135,7 +135,7 @@ public class Map {
         
         //Mess with initial pheromone value
         
-        double initialPheromoneValue = 1.00 / (this.numCities * nearestNeighborSum);
+        double initialPheromoneValue = 0.01;//1.00 / (this.numCities * nearestNeighborSum);
         //System.out.println(initialPheromoneValue);
         for(int i = 0; i < this.numCities; i++){
             List<Double> listOfDoubles = new ArrayList<>();
