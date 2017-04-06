@@ -146,4 +146,16 @@ public class AntColony {
         return this.beta;
     }
     
+    public double getBestLegProbability(){
+        return this.bestLegProbability;
+    }
+    
+    public double getEpsilon(){
+        return this.pheromeWearAwayEValue;
+    }
+    
+    public double getTzero() {
+        return this.pheromoneWearAwayTZero;
+    }
+    
 }
