@@ -14,18 +14,15 @@ package aco;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-/**
- *
- * @author jamesboyle
- */
-
         
 public class ACO {
     
     private static List<List<Double>> globalDistances; // = new ArrayList<List<Double>>();
     private static List<List<Double>> globalPheromones; // = new ArrayList<List<Double>>();
     private static int globalNumberOfCities;
+    
+    private static List<List<Double>> choice = new ArrayList<List<Double>>();
+    
     private static Random rand = new Random();
 
     /**
@@ -42,10 +39,15 @@ public class ACO {
         
         globalNumberOfCities = numberOfCities;     
         /*Usage: new AntColony(ants, iterations, alpha, beta, p, elitismNumAnts, epsilon, t0, q0) */
-        AntColony antColony = new AntColony(30, 150, 1, 3, 0.1, 30, 0.1, 0, 0.9);
-        antColony.setNumberOfCities(numberOfCities);
         
+        AntColony antColony = new AntColony(15, 200, 1, 3, 0.1, 30, 0.1, 0, 0.9);
+        antColony.setNumberOfCities(numberOfCities);
+        long startTime = System.currentTimeMillis();
+
         runElitistACO(antColony);
+        long elapsed = System.currentTimeMillis() - startTime;
+        
+        System.out.println("Elapsed:" + elapsed);
         //runACS(antColony);
            
     }
@@ -102,7 +104,7 @@ public class ACO {
                 }
             }
             antColony.setBestTourLengthSoFarAndAddToTourHistory();
-            updateGlobalPheromones(antColony, 0);
+            updateGlobalPheromones(antColony, 1);
             
             counter+=1;
             if(counter == numberOfIterations){
@@ -120,7 +122,6 @@ public class ACO {
     }
     
    
-    
     private static void runElitistACO(AntColony antColony){
         
         boolean runTours = true;
@@ -131,22 +132,24 @@ public class ACO {
         while(runTours){
             System.out.println(counter);
             antColony.initializeAnts();
+            precompute(antColony.getAlpha(), antColony.getBeta());
             
             //1 tour
             for(int k = 0; k < globalNumberOfCities; k++){
+             //   System.out.println("k: " + k);
                 ArrayList<Ant> ants = antColony.getAnts(); 
                 //all ants move once
                 for(int i = 0; i < ants.size(); i++){
                     //all ants are initialized to a starting city 
                     int currentCity = ants.get(i).getCurrentTourPosition();
                     ants.get(i).setVisited(currentCity);
-                    
                     ArrayList<Double> unvisitedDistances = getUnvisitedDistancesForAnt(ants.get(i));
                     ArrayList<Double> unvisitedPheromones = getUnvisitedPheromonesForAnt(ants.get(i));
                     //have all unvisited distances, unvisited pheromones 
                     double alpha = antColony.getAlpha();
                     double beta = antColony.getBeta();        
-                    
+               //                     System.out.println("FFFF");
+
                     int nextCity = getNextCity(ants.get(i), 
                                 unvisitedDistances,
                                 unvisitedPheromones, alpha, beta); 
@@ -157,9 +160,13 @@ public class ACO {
                     ants.get(i).updateCurrentTourHistory(nextCity);
                     ants.get(i).setCurrentTourPosition(nextCity);
                     ants.get(i).updateCurrentTourLength(getDistance(currentCity, nextCity));
+                   
                 } //END ANTS
 
+
             }
+                //                                System.out.println("rrr");
+
             antColony.setBestTourLengthSoFarAndAddToTourHistory();
             updateGlobalPheromones(antColony, 0);
             
@@ -177,6 +184,7 @@ public class ACO {
     private static void updateGlobalPheromones(AntColony antColony, int algType){
         
         //(1 - p) * Tij
+        
         for(int i = 0; i < globalNumberOfCities; i++) {
             for(int j = 0; j < globalNumberOfCities; j++) {
                 double pheromoneUpdate = (antColony.getEvaporationFactor() * -1) * globalPheromones.get(i).get(j);
@@ -185,7 +193,8 @@ public class ACO {
         }
         
         //ants pheromone
-        if(algType == 0) {
+        //DO FOR ANT COLONY
+        if(algType == 1) {
             updateAntsPheromone(antColony);
         }
         
@@ -349,6 +358,24 @@ public class ACO {
         return ant.getUnvisitedCities().get(bestIndex);
     }
     
+    private static void precompute(double alpha, double beta){
+        if(!choice.isEmpty()){
+            choice.clear();
+        }
+
+        for(int i = 0; i < globalDistances.size(); i++){
+            List<Double> choices = new ArrayList<Double>();
+            for(int j =0; j < globalDistances.size(); j++){
+               
+                double product = returnProduct(globalDistances.get(i).get(j), globalPheromones.get(i).get(j), alpha, beta);
+                
+                choices.add(product); 
+                
+            }
+            choice.add(choices);
+        }
+    }
+    
     private static int getNextCity(Ant ant, ArrayList<Double> unvisitedDistances, ArrayList<Double> unvisitedPheromones,
             double alpha, double beta){
         
@@ -357,18 +384,11 @@ public class ACO {
         ArrayList<Double> arrayOfNumerators = new ArrayList<>();
         
         for(int i = 0; i < ant.getUnvisitedCities().size(); i++){
-            arrayOfNumerators.add(returnProduct(unvisitedDistances.get(i), unvisitedPheromones.get(i), alpha, beta));          
-        }
+            double pheromoneDistanceProduct = choice.get(ant.getCurrentTourPosition()).get(ant.getUnvisitedCities().get(i));
+            arrayOfNumerators.add(pheromoneDistanceProduct);            
+            denominatorSum += pheromoneDistanceProduct;
+        }  
         
-        for(int i = 0; i < unvisitedDistances.size(); i++){
-            
-            double returnProductResult = returnProduct(unvisitedDistances.get(i), unvisitedPheromones.get(i), alpha, beta);
-            if(returnProductResult > 1){
-                System.exit(-1);
-            }
-            denominatorSum+= returnProductResult;
-        }
-  
         double randomValue = rand.nextDouble() * denominatorSum;
         
         double runningSum = 0.0;

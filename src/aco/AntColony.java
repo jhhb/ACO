@@ -59,7 +59,7 @@ public class AntColony {
     public void initializeAnts(){
         if(!this.ants.isEmpty()){
             this.ants.clear();
-        }        
+        }   
         for(int i = 0; i < this.numberOfAnts; i++){
 
             int randomTourPosition = getRandomTourPositionForAnt();
