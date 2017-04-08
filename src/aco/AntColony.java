@@ -57,10 +57,11 @@ public class AntColony {
     
     /* Initializes ants ArrayList with each ant with a random tour position */
     public void initializeAnts(){
+        if(!this.ants.isEmpty()){
+            this.ants.clear();
+        }        
         for(int i = 0; i < this.numberOfAnts; i++){
-            if(!this.ants.isEmpty()){
-                this.ants.clear();
-            }   
+
             int randomTourPosition = getRandomTourPositionForAnt();
             Ant ant = new Ant(randomTourPosition, this.numberOfCities);
             
@@ -94,19 +95,18 @@ public class AntColony {
     
     public void setBestTourLengthSoFarAndAddToTourHistory(){
         
-        double bestTourLengthSoFar = this.bestTourLengthSoFar;
+        double bestSoFar = this.bestTourLengthSoFar;
         int bestIndex = -1;
         for(int i = 0; i < this.ants.size(); i++){
-            if(ants.get(i).getCurrentTourLength() < bestTourLengthSoFar){
-                bestTourLengthSoFar = ants.get(i).getCurrentTourLength();
-          //      System.out.println(bestTourLengthSoFar + "\n");
+            if(ants.get(i).getCurrentTourLength() < bestSoFar){
+                bestSoFar = ants.get(i).getCurrentTourLength();
                 bestIndex = i;
             }
         }
         
         if(bestIndex != -1){
             this.bestTourSoFar = ants.get(bestIndex).getTourHistory(); 
-            this.bestTourLengthSoFar = bestTourLengthSoFar; 
+            this.bestTourLengthSoFar = bestSoFar; 
         }  
     }
     

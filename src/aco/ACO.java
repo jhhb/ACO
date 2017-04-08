@@ -33,7 +33,7 @@ public class ACO {
      */
     public static void main(String[] args) {
         
-        Map map = new  Map("/Users/jamesboyle/NetBeansProjects/ACO/ALL_tsp/att48.tsp");
+        Map map = new  Map("/Users/jamesboyle/NetBeansProjects/ACO/ALL_tsp/d2103.tsp");
         map.initializeMap();
         globalDistances = map.getDistances();
         globalPheromones = map.getPheromones();
@@ -45,8 +45,8 @@ public class ACO {
         AntColony antColony = new AntColony(30, 150, 1, 3, 0.1, 30, 0.1, 0, 0.9);
         antColony.setNumberOfCities(numberOfCities);
         
-        //runElitistACO(antColony);
-        runACS(antColony);
+        runElitistACO(antColony);
+        //runACS(antColony);
            
     }
     
@@ -96,7 +96,7 @@ public class ACO {
                     // eating YUM YUM
                     double epsilon = antColony.getEpsilon();
                     double tzero = antColony.getTzero();
-                    
+                                        
                     eatPheromone(currentCity, nextCity, epsilon, tzero);
                     eatPheromone(nextCity, currentCity, epsilon, tzero);
                 }

@@ -106,13 +106,13 @@ public class Map {
             int counter = 0;
             while((line = br.readLine()) != null){
                 if(Character.isDigit(line.charAt(0))){
-                    ArrayList<Double> coordinates = new ArrayList();            
+                    ArrayList<Double> coords = new ArrayList();            
                     String[] splitString = line.split(" ");      
                     for(int i = 1; i < splitString.length; i++){
-                        coordinates.add(Double.parseDouble(splitString[i]));         
+                        coords.add(Double.parseDouble(splitString[i]));         
                     }
                     counter+=1;
-                    this.coordinates.add(coordinates);
+                    this.coordinates.add(coords);
                 }   
             }
             System.out.println("Read " + counter + " Cities from " + this.filename);
