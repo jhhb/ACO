@@ -35,10 +35,8 @@ public class Ant {
         this.tourHistory = new ArrayList<Integer>();
         this.currentTourLength = 0;
         this.currentTourPosition = randomTourPosition;
-        this.pheromone = 0;
         this.numCities = numCities;
         this.initialCityIndex = randomTourPosition;
-       // this.changingNumberOfCities = numCities;
         initializeUnvisitedCities();
     }
     
@@ -54,6 +52,36 @@ public class Ant {
     
     public int getCurrentTourPosition(){
         return this.currentTourPosition;
+    }
+    
+    public int getNextCity(List<Double> choicesForAnt){
+        
+        double denominatorSum = 0.0;
+
+        ArrayList<Double> arrayOfNumerators = new ArrayList<>();
+        
+        for(int i = 0; i < this.unvisitedCities.size(); i++){
+            double pheromoneDistanceProduct = this.unvisitedCities.get(i);
+            arrayOfNumerators.add(pheromoneDistanceProduct);            
+            denominatorSum += pheromoneDistanceProduct;
+        }
+        
+        double randomValue = random.nextDouble() * denominatorSum;
+        
+        double runningSum = 0.0;
+        
+        int cityToGoToIndex = -1;
+        for(int i = 0; i< this.getUnvisitedCities().size(); i++ ){
+            runningSum += arrayOfNumerators.get(i);
+            if(randomValue <= runningSum){
+                cityToGoToIndex = i;
+                break;
+            }
+        }
+        if (cityToGoToIndex == -1) {
+            return -1;
+        }
+        return this.unvisitedCities.get(cityToGoToIndex); // ant.getUnvisitedCities().get(cityToGoToIndex);
     }
     
     public void setCurrentTourPosition(int newPosition){

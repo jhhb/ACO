@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.*;
 
 /**
@@ -31,6 +32,8 @@ public class Map {
     //pheromones, distances arrays
     private List<List<Double>> pheromones;
     private List<List<Double>> distances;
+    
+    private Random rand = new Random();
  
     private int numCities;
         
@@ -40,6 +43,7 @@ public class Map {
         this.pheromones = new ArrayList<List<Double>>();
         this.distances = new ArrayList<List<Double>>();
         this.numCities = -1;
+        
         
     }
     
@@ -132,9 +136,7 @@ public class Map {
         for(int i = 0; i < this.numCities; i++){
             nearestNeighborSum += getClosestDistance(i);
         }
-        
-        //Mess with initial pheromone value
-        
+                
         double initialPheromoneValue = 0.01;//1.00 / (this.numCities * nearestNeighborSum);
         //System.out.println(initialPheromoneValue);
         for(int i = 0; i < this.numCities; i++){
@@ -147,13 +149,24 @@ public class Map {
         }        
     }
     
+        
+    public double getNearestNeighborSum(){
+        
+        double nearestNeighborSum = 0.0;
+        
+        for(int i = 0; i < this.numCities; i++){
+            nearestNeighborSum += getClosestDistance(i);
+        }   
+        return nearestNeighborSum;
+    }
+    
     /* This is for nearest neighbor calc for pheromone initialization */
     private double getClosestDistance(int cityIndex){
         int minIndex = Integer.MAX_VALUE;
         
         for(int i = 0; i < this.distances.size(); i++){
             if( this.distances.get(cityIndex).get(i) < minIndex){
-                if(this.distances.get(cityIndex).get(i) != 0){
+                if(this.distances.get(cityIndex).get(i) != 0.1){
                     minIndex = i;
                 }
             }
@@ -174,4 +187,57 @@ public class Map {
             System.out.println("\n");
         }
     }
+    
+    public double getT0() {
+        
+        int startCity = rand.nextInt(this.numCities);
+        
+        ArrayList<Integer> tour = new ArrayList<>();
+        
+        double length = 0;
+        int newCity = -1;
+        int iter = 0;
+        while(tour.size() != this.numCities -1){
+            
+            tour.add(startCity);
+            newCity = getNearestNeighbor(startCity, tour);
+            length += this.distances.get(startCity).get(newCity);
+            startCity = newCity;
+            
+           // System.out.println(iter);
+            iter+=1;
+        }
+        return length;
+}
+    
+    public int getNearestNeighbor(int startCity, ArrayList<Integer> tour){
+        
+        //build unvisitedCities
+        
+        ArrayList<Integer> unvisited = new ArrayList<>();
+        
+        for(int j = 0; j < this.numCities; j++){
+            if(!tour.contains(j)){
+                unvisited.add(j);
+            }
+            
+        }
+        
+        double min = Double.MAX_VALUE;
+        int minInd = -1;
+        
+        for(int k = 0; k < unvisited.size(); k++){
+            if(this.distances.get(startCity).get(unvisited.get(k)) < min){
+                min = this.distances.get(startCity).get(unvisited.get(k));
+                minInd = unvisited.get(k);
+            }
+        }
+        return minInd;
+                
+    }
+    
+    
+    
+   
+    
 }
