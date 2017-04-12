@@ -1,0 +1,43 @@
+START OF RUN FOR TRIAL 0
+Read 2103 Cities from d2103.tsp
+ACS,10,200,1.0,3.0,0.1,10,0.1,1.0693219735118983E-5,0.9,
+best tour at iteration 0: 1.7976931348623157E308
+best tour at iteration 10: 110529.3883274532
+best tour at iteration 20: 110529.3883274532
+best tour at iteration 30: 110529.3883274532
+best tour at iteration 40: 110529.3883274532
+best tour at iteration 50: 101102.47296654356
+best tour at iteration 60: 93762.04282635424
+best tour at iteration 70: 90029.08797740983
+best tour at iteration 80: 88890.60265038443
+best tour at iteration 90: 88890.60265038443
+best tour at iteration 100: 88890.28339792842
+best tour at iteration 110: 88298.89240453772
+best tour at iteration 120: 87645.26354898402
+best tour at iteration 130: 87645.26354898402
+best tour at iteration 140: 87645.26354898402
+best tour at iteration 150: 87645.26354898402
+best tour at iteration 160: 87139.16324933036
+best tour at iteration 170: 87139.16324933036
+best tour at iteration 180: 87139.16324933036
+best tour at iteration 190: 87139.16324933036
+best tour at iteration 200: 87139.16324933036
+Elapsed time in ms: 469509
+END OF RUN FOR TRIAL 0
+START OF RUN FOR TRIAL 1
+Read 2103 Cities from d2103.tsp
+ACS,10,200,1.0,3.0,0.1,10,0.1,1.0974854948112221E-5,0.9,
+best tour at iteration 0: 1.7976931348623157E308
+best tour at iteration 10: 107258.95134313563
+best tour at iteration 20: 107258.95134313563
+best tour at iteration 30: 107258.95134313563
+best tour at iteration 40: 107258.95134313563
+best tour at iteration 50: 97701.9161733109
+best tour at iteration 60: 92831.91796041261
+best tour at iteration 70: 90493.65271095705
+best tour at iteration 80: 89611.62452818886
+best tour at iteration 90: 88648.88991428915
+best tour at iteration 100: 88648.88991428915
+best tour at iteration 110: 87990.89390424907
+best tour at iteration 120: 87438.95153013241
+best tour at iteration 130: 87438.95153013241

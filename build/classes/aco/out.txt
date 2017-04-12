@@ -1,0 +1,7 @@
+START OF RUN FOR TRIAL 0
+java.io.FileNotFoundException: d2103.tsp (No such file or directory)
+Exception in thread "main" java.lang.IllegalArgumentException: bound must be positive
+	at java.util.Random.nextInt(Random.java:388)
+	at aco.Map.getT0(Map.java:193)
+	at aco.ACO.test(ACO.java:84)
+	at aco.ACO.main(ACO.java:33)

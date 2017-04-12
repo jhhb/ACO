@@ -30,37 +30,83 @@ public class ACO {
      */
     public static void main(String[] args) {
         
-        Map map = new  Map("/Users/jamesboyle/NetBeansProjects/ACO/ALL_tsp/d2103.tsp");
-        map.initializeMap();
-        globalDistances = map.getDistances();
-        globalPheromones = map.getPheromones();
+        test();
         
-        int numberOfCities = map.getNumberOfCities();
-                
-        globalNumberOfCities = numberOfCities;     
-        /*Usage: new AntColony(ants, iterations, alpha, beta, p, elitismNumAnts, epsilon, t0, q0) */
+//        Map map = new  Map("/Users/jamesboyle/NetBeansProjects/ACO/ALL_tsp/d2103.tsp");
+//        map.initializeMap();
+//        globalDistances = map.getDistances();
+//        globalPheromones = map.getPheromones();    
+//        int numberOfCities = map.getNumberOfCities();          
+//        globalNumberOfCities = numberOfCities;             
+//        double t0 = map.getT0();
+//        System.out.println("T0: " +t0);
+//        
+//       int NUM_ANTS = 15; 
+//       AntColony antColony = new AntColony(NUM_ANTS, 200, 1, 3, 0.1, 30, 0.1, 1.00 / t0, 0.9);
+//       antColony.setNumberOfCities(numberOfCities);
+//
+//       // runElitistACO(antColony);
+//               
+//        long startTime = System.currentTimeMillis();
+//       // runACS(antColony);
+//        runElitistACO(antColony);
+//        
+//        long elapsed = System.currentTimeMillis() - startTime;
+//        System.out.println("Elapsed:" + elapsed);
+    }
+    
+    private static void test(){
         
-        double t0 = map.getT0();
-        System.out.println(t0);
+        final int NUM_ITERATIONS = 200;
+        final double ALPHA = 1.0;
+        final double BETA = 3;
+        final double EVAPORATION_FACTOR = 0.1;
+        final double EPSILON = 0.1;
+        final double Q_ZERO = 0.9;
+        final int[] ANTS_ARRAY= {10,15,20};
+        String[] FILENAMES = {"d2103.tsp", "fl3795.tsp","fnl4461-use.tsp", "rl5915.tsp"};
         
-       int NUM_ANTS = 15;
-               
+        final int NUM_TRIALS = 5;
+        ArrayList<Double> results = new ArrayList<>();
+        for(int z = 0; z < 2; z++){
+            for(int a = 0; a < FILENAMES.length; a++){
+                for(int b = 0; b < ANTS_ARRAY.length; b++){
+                    for(int trials = 0; trials < NUM_TRIALS; trials++){
+                        System.out.println("START OF RUN FOR TRIAL " + trials);
+                        long startTime = System.currentTimeMillis();
 
-       AntColony antColony = new AntColony(NUM_ANTS, 200, 1, 3, 0.1, 30, 0.1, 1.00 / t0, 0.9);
-       antColony.setNumberOfCities(numberOfCities);
+                        Map map = new  Map(FILENAMES[a]);
+                        map.initializeMap();
+                        globalDistances = map.getDistances();
+                        globalPheromones = map.getPheromones();    
+                        int numberOfCities = map.getNumberOfCities();          
+                        globalNumberOfCities = numberOfCities;             
+                        double t0 = 1.00 / map.getT0(); 
 
-       // runElitistACO(antColony);
-               
-        long startTime = System.currentTimeMillis();
+                        AntColony antColony = new AntColony(ANTS_ARRAY[b], NUM_ITERATIONS, ALPHA, BETA, EVAPORATION_FACTOR,
+                                ANTS_ARRAY[b], EPSILON, t0, Q_ZERO);
+                        antColony.setNumberOfCities(numberOfCities); 
 
-        runACS(antColony);
-       // runElitistACO(antColony);
-        
-        long elapsed = System.currentTimeMillis() - startTime;
-        System.out.println("Elapsed:" + elapsed);
-
-
-           
+                        if(z == 0){
+                            System.out.println("ACS,"+ANTS_ARRAY[b]+","+NUM_ITERATIONS+","+ALPHA+","+BETA+","+EVAPORATION_FACTOR+","+
+                                    ANTS_ARRAY[b]+","+EPSILON+","+t0+","+Q_ZERO+",");
+                            runACS(antColony);
+                        }
+                        else{
+                            System.out.println("EAS,"+ANTS_ARRAY[b]+","+NUM_ITERATIONS+","+ALPHA+","+BETA+","+EVAPORATION_FACTOR+","+
+                                    ANTS_ARRAY[b]+","+EPSILON+","+t0+","+Q_ZERO+",");
+                            runElitistACO(antColony);
+                        }
+                        long elapsed = System.currentTimeMillis() - startTime;
+                        System.out.println("Elapsed time in ms: " + elapsed);
+                        System.out.println("END OF RUN FOR TRIAL "+trials);   
+                        results.add(antColony.getBestTourLengthSoFar());
+                    }
+                    System.out.println("Results of 5 trials: " + results.toString());
+                    results.clear();
+                }
+            }  
+        }
     }
     
     private static void runACS(AntColony antColony){
@@ -70,8 +116,10 @@ public class ACO {
         int numberOfIterations = antColony.getNumberOfIterations();
         int counter = 0;
         
-        while(runTours) {          
-            System.out.println(counter);
+        while(runTours) { 
+            if(counter % 10 == 0){
+                System.out.println("best tour at iteration " + counter +": " +antColony.getBestTourLengthSoFar());
+            }
             antColony.initializeAnts();
             precompute(antColony.getAlpha(), antColony.getBeta());
             for(int k = 0; k < globalNumberOfCities; k++) {
@@ -109,8 +157,7 @@ public class ACO {
                 runTours = false;
             }  
         }   
-        System.out.println(antColony.getBestTourLengthSoFar());
-        System.out.println(antColony.getBestTourSoFar());          
+        System.out.println("best tour at iteration " + counter +": " +antColony.getBestTourLengthSoFar());
     }
        
     private static void runElitistACO(AntColony antColony){
@@ -121,7 +168,9 @@ public class ACO {
         int counter = 0;
         
         while(runTours){
-            System.out.println(counter);
+            if(counter % 10 == 0){
+                System.out.println("best tour at iteration " + counter +": " +antColony.getBestTourLengthSoFar());
+            }
             antColony.initializeAnts();
             precompute(antColony.getAlpha(), antColony.getBeta());
             
@@ -146,8 +195,8 @@ public class ACO {
                 runTours = false;
             }            
         }
-        System.out.println(antColony.getBestTourLengthSoFar());
-        System.out.println(antColony.getBestTourSoFar());
+        System.out.println("best tour at iteration " + counter +": " +antColony.getBestTourLengthSoFar());
+        //System.out.println(antColony.getBestTourSoFar());
     }
     
     // 0 = Elistist Ant System

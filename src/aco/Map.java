@@ -110,7 +110,7 @@ public class Map {
             int counter = 0;
             while((line = br.readLine()) != null){
                 if(Character.isDigit(line.charAt(0))){
-                    ArrayList<Double> coords = new ArrayList();            
+                    ArrayList<Double> coords = new ArrayList<Double>();            
                     String[] splitString = line.split(" ");      
                     for(int i = 1; i < splitString.length; i++){
                         coords.add(Double.parseDouble(splitString[i]));         
